@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="aws-consumer/aws-consumer.csproj" Id="f4b07f5e-718d-4c3d-90e7-6295515fbe7f" />
   <Project Path="aws-publisher/aws-publisher.csproj" />
 </Solution>
