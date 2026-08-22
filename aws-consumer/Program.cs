@@ -8,7 +8,8 @@ var queueUrlResponse = await sqsClient.GetQueueUrlAsync("measurements");
 
 var receiveMessageRequest = new ReceiveMessageRequest
 {
-    QueueUrl = queueUrlResponse.QueueUrl
+    QueueUrl = queueUrlResponse.QueueUrl,
+    MessageAttributeNames = new List<string> { "All" }
 };
 
 while (!cts.IsCancellationRequested)
@@ -22,6 +23,7 @@ while (!cts.IsCancellationRequested)
     {
         Console.WriteLine($"Message Id: {message.MessageId}");
         Console.WriteLine($"Message Id: {message.Body}");
+        Console.WriteLine($"Message Attribute: {message.MessageAttributes["MessageType"].StringValue}");
 
         await sqsClient.DeleteMessageAsync(queueUrlResponse.QueueUrl, message.ReceiptHandle, cts.Token);
     }
