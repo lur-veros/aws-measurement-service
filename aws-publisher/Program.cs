@@ -1,8 +1,7 @@
-﻿using System.Text.Json;
-using Amazon.Runtime.Internal.Transform;
-using Amazon.SQS;
-using Amazon.SQS.Model;
+﻿using Amazon.SQS;
 using Aws.Abstractions;
+using aws_publisher.Messaging;
+using Microsoft.Extensions.Options;
 
 var sqsClient = new AmazonSQSClient();
 
@@ -15,25 +14,10 @@ var measurement = new MeasurementCreated
     DateOf = DateTime.UtcNow
 };
 
+var queueSettings = Options.Create(new QueueSettings { QueueName = "measurements" });
 
-var queueUrlResponse = await sqsClient.GetQueueUrlAsync("measurements");
+var messenger = new SqsMessenger(sqsClient, queueSettings);
 
-var sendMessageRequest = new SendMessageRequest
-{
-    QueueUrl = queueUrlResponse.QueueUrl,
-    MessageBody = JsonSerializer.Serialize(measurement),
-    MessageAttributes = new Dictionary<string, MessageAttributeValue>
-    {
-        {
-            "MessageType", new MessageAttributeValue
-            {
-                DataType = "String",
-                StringValue = nameof(MeasurementCreated)
-            } 
-        }
-    }
-};
-
-var response = await sqsClient.SendMessageAsync(sendMessageRequest);
+var response = await messenger.SendMessageAsync(measurement);
 
 Console.WriteLine();
