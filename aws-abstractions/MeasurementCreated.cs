@@ -1,4 +1,4 @@
-﻿namespace aws_publisher;
+namespace Aws.Abstractions;
 
 public class MeasurementCreated
 {

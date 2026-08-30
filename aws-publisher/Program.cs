@@ -2,7 +2,7 @@
 using Amazon.Runtime.Internal.Transform;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using aws_publisher;
+using Aws.Abstractions;
 
 var sqsClient = new AmazonSQSClient();
 
