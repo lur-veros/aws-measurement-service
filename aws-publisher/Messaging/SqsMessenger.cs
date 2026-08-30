@@ -8,7 +8,8 @@ namespace aws_publisher.Messaging;
 public class SqsMessenger : ISqsMessenger
 {
     private readonly IAmazonSQS _sqs;
-    private readonly IOptions<QueueSettings> _queueSettings;    
+    private readonly IOptions<QueueSettings> _queueSettings;
+    private string? _queueUrl;
 
     public SqsMessenger(IAmazonSQS sqs, IOptions<QueueSettings> queueSettings)
     {
@@ -18,11 +19,11 @@ public class SqsMessenger : ISqsMessenger
 
     public async Task<SendMessageResponse> SendMessageAsync<T>(T message)
     {
-        var queueUrlResponse = await _sqs.GetQueueUrlAsync(_queueSettings.Value.QueueName);
+        var queueUrl = await GetQueueUrlAsync();
 
         var sendMessageRequest = new SendMessageRequest
         {
-            QueueUrl = queueUrlResponse.QueueUrl,
+            QueueUrl = queueUrl,
             MessageBody = JsonSerializer.Serialize(message),
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
@@ -36,6 +37,16 @@ public class SqsMessenger : ISqsMessenger
             }
         };
 
-        return await _sqs.SendMessageAsync(sendMessageRequest);        
+        return await _sqs.SendMessageAsync(sendMessageRequest);
+    }
+
+    private async Task<string> GetQueueUrlAsync()
+    {
+        if (_queueUrl is not null)
+            return _queueUrl;
+
+        var queueUrlResponse = await _sqs.GetQueueUrlAsync(_queueSettings.Value.QueueName);
+        _queueUrl = queueUrlResponse.QueueUrl;
+        return _queueUrl;
     }
 }
